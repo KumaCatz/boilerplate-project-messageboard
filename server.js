@@ -14,6 +14,10 @@ const app = express();
 //Connect to MongoDB
 connectDB();
 
+// 2. Only allow your site to be loaded in an iFrame on your own pages.
+// 3. Do not allow DNS prefetching.
+// 4. Only allow your site to send the referrer for your own pages.
+
 app.use('/public', express.static(process.cwd() + '/public'));
 
 app.use(cors({ origin: '*' })); //For FCC testing purposes only
