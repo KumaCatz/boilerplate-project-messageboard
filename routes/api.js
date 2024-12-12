@@ -4,6 +4,7 @@ const { client }  = require('../db-connection.js');
 
 const database  = client.db("anonymousMessageBoard");
 const threads   = database.collection("threads");
+const replies   = database.collection("replies");
 
 const getBaseData = (text, delete_password) => {
   const date = new Date();
@@ -16,29 +17,36 @@ const getBaseData = (text, delete_password) => {
   };
 }
 
+
 module.exports = function (app) {
 
   app.route('/api/threads/:board')
 
-    .post((req, res) => {
+    .post(async (req, res) => {
       // You can send a POST request to /api/threads/{board} with form data including text and delete_password. The saved database record will have at least the fields _id, text, created_on(date & time), bumped_on(date & time, starts same as created_on), reported (boolean), delete_password, & replies (array).
 
       const {text, delete_password} = req.body
-      console.log(req.params)
-      console.log(req.body)
+
       const baseData = getBaseData(text, delete_password)
       const newThread = {
         ...baseData,
         'bumped_on': baseData.created_on,
         'replies': []
       }
+      const insertNewThread = await threads.insertOne(newThread)
       res.send('test: /api/threads/:board POST')
 
     })
 
-    .get((req, res) => {
-      // 7. You can send a GET request to /api/threads/{board}. Returned will be an array of the most recent 10 bumped threads on the board with only the most recent 3 replies for each. The reported and delete_password fields will not be sent to the client.
+    // 7. You can send a GET request to /api/threads/{board}.
+    .get(async (req, res) => {
 
+      // Returned will be an array of the most recent 10 bumped threads on the board
+      const recentThreads = await threads.findOne()
+
+      //with only the most recent 3 replies for each
+
+      // The reported and delete_password fields will not be sent to the client.
       res.send('test: /api/threads/:board GET')
 
     })
