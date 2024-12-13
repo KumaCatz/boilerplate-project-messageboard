@@ -22,20 +22,22 @@ module.exports = function (app) {
 
   app.route('/api/threads/:board')
 
+    // You can send a POST request to /api/threads/{board}
     .post(async (req, res) => {
-      // You can send a POST request to /api/threads/{board} with form data including text and delete_password. The saved database record will have at least the fields _id, text, created_on(date & time), bumped_on(date & time, starts same as created_on), reported (boolean), delete_password, & replies (array).
 
+      // with form data including text and delete_password.
       const {text, delete_password} = req.body
 
       const baseData = getBaseData(text, delete_password)
+
+      // The saved database record will have at least the fields _id, text, created_on(date & time), bumped_on(date & time, starts same as created_on), reported (boolean), delete_password, & replies (array).
       const newThread = {
         ...baseData,
         'bumped_on': baseData.created_on,
         'replies': []
       }
-      const insertNewThread = await threads.insertOne(newThread)
-      res.send('test: /api/threads/:board POST')
-
+      const insertRes = await threads.insertOne(newThread);
+      res.send(insertRes)
     })
 
     // 7. You can send a GET request to /api/threads/{board}.
