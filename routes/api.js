@@ -1,8 +1,8 @@
 'use strict';
 
-const { ObjectId } = require('mongodb')
+const { ObjectId } = require('mongodb');
 
-const { client }   = require('../db-connection.js');
+const { client } = require('../db-connection.js');
 
 const database = client.db('anonymousMessageBoard');
 const threads = database.collection('threads');
@@ -74,23 +74,25 @@ module.exports = function (app) {
       const thread = await threads.updateOne(
         { _id: new ObjectId(thread_id) },
         { $set: { reported: true } }
-      )
+      );
 
-      res.send('reported')
+      res.send('reported');
       // res.send('test: /api/threads/:board PUT');
     })
 
     .delete(async (req, res) => {
       // 9. You can send a DELETE request to /api/threads/{board} and pass along the thread_id & delete_password to delete the thread. Returned will be the string incorrect password or success.
-      const {board, thread_id, delete_password} = req.body
+      const { board, thread_id, delete_password } = req.body;
 
-      const thread = await threads.findOne({_id: new ObjectId(thread_id)})
+      const thread = await threads.findOne({ _id: new ObjectId(thread_id) });
 
       if (thread.delete_password == delete_password) {
-        const deleteThread = await threads.deleteOne({_id: new ObjectId(thread_id)})
-        res.send('success')
+        const deleteThread = await threads.deleteOne({
+          _id: new ObjectId(thread_id),
+        });
+        res.send('success');
       } else {
-        res.send('incorrect password')
+        res.send('incorrect password');
       }
 
       // res.send('test: /api/threads/:board DELETE');
@@ -99,11 +101,25 @@ module.exports = function (app) {
   app
     .route('/api/replies/:board')
 
-    .post((req, res) => {
+    .post(async (req, res) => {
       // . You can send a POST request to /api/replies/{board} with form data including text, delete_password, & thread_id. This will update the bumped_on date to the comment's date. In the thread's replies array, an object will be saved with at least the properties _id, text, created_on, delete_password, & reported.
 
       const { board, thread_id, text, delete_password } = req.body;
-      const newReply = getBaseData(text, delete_password);
+      const baseData = getBaseData(text, delete_password);
+
+      const newReply = {
+        _id: new ObjectId(),
+        ...baseData
+      };
+
+      console.log('updating...');
+      const thread = await threads.updateOne(
+        { _id: new ObjectId(thread_id) },
+        {
+          $set: { bumped_on: new Date() },
+          $push: { replies: newReply },
+        }
+      );
 
       res.send('test: /api/replies/:board POST');
     })
