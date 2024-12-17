@@ -1,6 +1,8 @@
 'use strict';
 
-const { client } = require('../db-connection.js');
+const { ObjectId } = require('mongodb')
+
+const { client }   = require('../db-connection.js');
 
 const database = client.db('anonymousMessageBoard');
 const threads = database.collection('threads');
@@ -36,11 +38,12 @@ module.exports = function (app) {
       };
       const insertRes = await threads.insertOne(newThread);
       res.send(insertRes);
+
+      // res.send('test: /api/threads/:board GET');
     })
 
     // 7. You can send a GET request to /api/threads/{board}.
     .get(async (req, res) => {
-      
       // Returned will be an array of the most recent 10 bumped threads on the board
       const recentThreads = await threads
 
@@ -51,25 +54,34 @@ module.exports = function (app) {
 
       //with only the most recent 3 replies for each
       const updatedThreads = recentThreads.map((thread) => {
-
         thread.replies.sort((a, b) => b.created_on - a.created_on);
         thread.replies = thread.replies.slice(0, 3);
         delete thread.delete_password;
         delete thread.reported;
         return thread;
-
       });
 
-      console.log(updatedThreads);
-
       // The reported and delete_password fields will not be sent to the client.
-      res.send('test: /api/threads/:board GET');
+      res.send(updatedThreads);
+
+      // res.send('test: /api/threads/:board GET');
     })
 
-    .put((req, res) => {
-      // 11. You can send a PUT request to /api/threads/{board} and pass along the thread_id. Returned will be the string reported. The reported value of the thread_id will be changed to true.
+    // 11. You can send a PUT request to /api/threads/{board} and pass along the thread_id. Returned will be the string reported. The reported value of the thread_id will be changed to true.
+    .put(async (req, res) => {
+      const { board, thread_id } = req.body;
 
-      res.send('test: /api/threads/:board PUT');
+      console.log('searching thread...')
+
+      const thread = await threads.updateOne(
+        { _id: new ObjectId(thread_id) },
+        { $set: { reported: true } }
+      )
+
+      console.log(thread)
+
+      res.send('reported')
+      // res.send('test: /api/threads/:board PUT');
     })
 
     .delete((req, res) => {
