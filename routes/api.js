@@ -71,23 +71,29 @@ module.exports = function (app) {
     .put(async (req, res) => {
       const { board, thread_id } = req.body;
 
-      console.log('searching thread...')
-
       const thread = await threads.updateOne(
         { _id: new ObjectId(thread_id) },
         { $set: { reported: true } }
       )
 
-      console.log(thread)
-
       res.send('reported')
       // res.send('test: /api/threads/:board PUT');
     })
 
-    .delete((req, res) => {
+    .delete(async (req, res) => {
       // 9. You can send a DELETE request to /api/threads/{board} and pass along the thread_id & delete_password to delete the thread. Returned will be the string incorrect password or success.
+      const {board, thread_id, delete_password} = req.body
 
-      res.send('test: /api/threads/:board DELETE');
+      const thread = await threads.findOne({_id: new ObjectId(thread_id)})
+
+      if (thread.delete_password == delete_password) {
+        const deleteThread = await threads.deleteOne({_id: new ObjectId(thread_id)})
+        res.send('success')
+      } else {
+        res.send('incorrect password')
+      }
+
+      // res.send('test: /api/threads/:board DELETE');
     });
 
   app
