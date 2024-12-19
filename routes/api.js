@@ -35,6 +35,7 @@ module.exports = function (app) {
         ...baseData,
         bumped_on: baseData.created_on,
         replies: [],
+        replycount: 0
       };
       const insertRes = await threads.insertOne(newThread);
       res.send(insertRes);
@@ -115,6 +116,7 @@ module.exports = function (app) {
         { _id: new ObjectId(thread_id) },
         {
           $set: { bumped_on: new Date() },
+          $inc: { replycount: 1 },
           $push: { replies: newReply },
         }
       );
@@ -174,7 +176,7 @@ module.exports = function (app) {
         const updateReply = await threads.updateOne(
           { _id: new ObjectId(thread_id), 'replies._id': new ObjectId(reply_id)},
           {
-            $set: { 'replies.$.text': '[deleted]' }
+            $set: { 'replies.$.text': '[deleted]' },
           }
         );
 
