@@ -3,6 +3,7 @@ require('dotenv').config();
 const express    = require('express');
 const bodyParser = require('body-parser');
 const cors       = require('cors');
+const helmet     = require('helmet');
 
 const { connectDB }    = require('./db-connection.js');
 const apiRoutes        = require('./routes/api.js');
@@ -11,12 +12,25 @@ const runner           = require('./test-runner');
 
 const app = express();
 
+//Helmet config
+app.use(
+  helmet.frameguard({
+    action: 'sameorigin',
+  })
+);
+app.use(
+  helmet.dnsPrefetchControl({
+    allow: false,
+  })
+);
+app.use(
+  helmet.referrerPolicy({
+    policy: 'same-origin',
+  })
+);
+
 //Connect to MongoDB
 connectDB();
-
-// 2. Only allow your site to be loaded in an iFrame on your own pages.
-// 3. Do not allow DNS prefetching.
-// 4. Only allow your site to send the referrer for your own pages.
 
 app.use('/public', express.static(process.cwd() + '/public'));
 

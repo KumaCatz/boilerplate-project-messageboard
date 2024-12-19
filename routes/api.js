@@ -130,13 +130,16 @@ module.exports = function (app) {
       // Returned will be the entire thread with all its replies, also excluding the same fields from the client as the previous test.
       // delete_password and reported key-values
       const thread = await threads.findOne({ _id: new ObjectId(thread_id) })
-      const updatedThreadReplies = thread.replies.map((reply) => {
+      const updatedReplies = thread.replies.map((reply) => {
         delete reply.delete_password;
         delete reply.reported;
         return reply;
       });
 
-      res.send(updatedThreadReplies)
+      thread.replies = updatedReplies
+      delete thread.delete_password;
+      delete thread.reported
+      res.send(thread)
       // res.send('test: /api/replies/:board GET');
     })
 
