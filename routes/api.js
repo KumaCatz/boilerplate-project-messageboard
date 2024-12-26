@@ -6,7 +6,6 @@ const { client } = require('../db-connection.js');
 
 const database = client.db('anonymousMessageBoard');
 const threads = database.collection('threads');
-const replies = database.collection('replies');
 
 const getBaseData = (text, delete_password) => {
   const date = new Date();
