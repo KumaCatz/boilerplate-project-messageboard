@@ -71,7 +71,6 @@ module.exports = function (app) {
       }
     })
 
-    // 11. You can send a PUT request to /api/threads/{board} and pass along the thread_id. Returned will be the string reported. The reported value of the thread_id will be changed to true.
     .put(async (req, res) => {
       const { board, thread_id } = req.body;
 
@@ -81,25 +80,25 @@ module.exports = function (app) {
       );
 
       res.send('reported');
-      // res.send('test: /api/threads/:board PUT');
     })
 
-    // 9. You can send a DELETE request to /api/threads/{board} and pass along the thread_id & delete_password to delete the thread. Returned will be the string incorrect password or success.
     .delete(async (req, res) => {
-      const { board, thread_id, delete_password } = req.body;
+      const { thread_id, delete_password } = req.body;
 
-      const thread = await threads.findOne({ _id: new ObjectId(thread_id) });
+      try {
+        const thread = await threads.findOne({ _id: new ObjectId(thread_id) });
 
-      if (thread.delete_password == delete_password) {
-        const deleteThread = await threads.deleteOne({
-          _id: new ObjectId(thread_id),
-        });
-        res.send('success');
-      } else {
-        res.send('incorrect password');
+        if (thread.delete_password == delete_password) {
+          const deleteThread = await threads.deleteOne({
+            _id: new ObjectId(thread_id),
+          });
+          res.send('success');
+        } else {
+          res.send('incorrect password');
+        }
+      } catch (err) {
+        res.send(err)
       }
-
-      // res.send('test: /api/threads/:board DELETE');
     });
 
   app
