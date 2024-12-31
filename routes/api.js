@@ -72,7 +72,7 @@ module.exports = function (app) {
     })
 
     .put(async (req, res) => {
-      const { board, thread_id } = req.body;
+      const { thread_id } = req.body;
 
       const thread = await threads.updateOne(
         { _id: new ObjectId(thread_id) },
@@ -104,9 +104,8 @@ module.exports = function (app) {
   app
     .route('/api/replies/:board')
 
-    // . You can send a POST request to /api/replies/{board} with form data including text, delete_password, & thread_id. This will update the bumped_on date to the comment's date. In the thread's replies array, an object will be saved with at least the properties _id, text, created_on, delete_password, & reported.
     .post(async (req, res) => {
-      const { board, thread_id, text, delete_password } = req.body;
+      const { thread_id, text, delete_password } = req.body;
       const baseData = getBaseData(text, delete_password);
 
       const newReply = {
@@ -123,10 +122,9 @@ module.exports = function (app) {
         }
       );
 
-      res.send('test: /api/replies/:board POST');
+      res.send('success');
     })
 
-    // 8. You can send a GET request to /api/replies/{board}?thread_id={thread_id}.
     .get(async (req, res) => {
       const { board } = req.params;
       const { thread_id } = req.query;

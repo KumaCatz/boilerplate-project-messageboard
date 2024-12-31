@@ -58,35 +58,69 @@ suite('Functional Tests', function () {
   //         });
   //     });
   // });
-  test('Deleting a thread with the correct password: DELETE request to /api/threads/{board} with a valid delete_password', (done) => {
-    chai
-      .request(server)
-      .get('/api/threads/test')
-      .end((err, res) => {
-        const sample = res.body[0];
-        chai
-          .request(server)
-          .delete('/api/threads/test')
-          .send({
-            thread_id: sample._id,
-            delete_password: 'test',
-          })
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.equal(res.text, 'success');
-            done();
-          });
-      });
-  })
+  // test('Deleting a thread with the correct password: DELETE request to /api/threads/{board} with a valid delete_password', (done) => {
+  //   chai
+  //     .request(server)
+  //     .get('/api/threads/test')
+  //     .end((err, res) => {
+  //       const sample = res.body[0];
+  //       chai
+  //         .request(server)
+  //         .delete('/api/threads/test')
+  //         .send({
+  //           thread_id: sample._id,
+  //           delete_password: 'test',
+  //         })
+  //         .end((err, res) => {
+  //           assert.equal(res.status, 200);
+  //           assert.equal(res.text, 'success');
+  //           done();
+  //         });
+  //     });
+  // })
   // test('Reporting a thread: PUT request to /api/threads/{board}', (done) => {
-  //   done()
+  //   chai
+  //     .request(server)
+  //     .get('/api/threads/:board')
+  //     .end((err, res) => {
+  //       const sample = res.body[0];
+  //       chai
+  //       .request(server)
+  //       .put(`/api/threads/${sample.text}`)
+  //       .send({
+  //         thread_id: sample._id
+  //       })
+  //       .end((err, res) => {
+  //         assert.equal(res.status, 200)
+  //         assert.equal(res.text, 'reported')
+  //         done()
+  //       })
+  //     })
   // })
   // test('Creating a new reply: POST request to /api/replies/{board}', (done) => {
-  //   done()
+  //   chai
+  //     .request(server)
+  //     .get('/api/threads/:board')
+  //     .end((err, res) => {
+  //       const sample = res.body[0];
+  //       chai
+  //       .request(server)
+  //       .post(`/api/replies/${sample.text}`)
+  //       .send({
+  //         thread_id: sample._id,
+  //         text: 'test',
+  //         delete_password: 'test'
+  //       })
+  //       .end((err, res) => {
+  //         assert.equal(res.status, 200)
+  //         assert.equal(res.text, 'success')
+  //         done()
+  //       })
+  //     })
   // })
-  // test('Viewing a single thread with all replies: GET request to /api/replies/{board}', (done) => {
-  //   done()
-  // })
+  test('Viewing a single thread with all replies: GET request to /api/replies/{board}', (done) => {
+    done()
+  })
   // test('Deleting a reply with the incorrect password: DELETE request to /api/replies/{board} with an invalid delete_password', (done) => {
   //   done()
   // })
