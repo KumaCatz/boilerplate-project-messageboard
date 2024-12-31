@@ -37,8 +37,13 @@ module.exports = function (app) {
         replies: [],
         replycount: 0
       };
-      const insertRes = await threads.insertOne(newThread);
-      res.send(insertRes);
+      try {
+        const postThread = await threads.insertOne(newThread);
+        delete postThread.insertedId
+        res.send(postThread);  
+      } catch (err) {
+        res.send(err)
+      }
 
       // res.send('test: /api/threads/:board GET');
     })
@@ -57,6 +62,10 @@ module.exports = function (app) {
       const updatedThreads = recentThreads.map((thread) => {
         thread.replies.sort((a, b) => b.created_on - a.created_on);
         thread.replies = thread.replies.slice(0, 3);
+        thread.replies.forEach((reply) => {
+          delete reply.delete_password;
+          delete reply.reported;
+        });
         delete thread.delete_password;
         delete thread.reported;
         return thread;

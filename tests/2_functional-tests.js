@@ -6,9 +6,25 @@ const server = require('../server');
 chai.use(chaiHttp);
 
 suite('Functional Tests', function() {
-  // test('Creating a new thread: POST request to /api/threads/{board}', (done) => {
-  //   done()
-  // })
+  test('Creating a new thread: POST request to /api/threads/{board}', (done) => {
+    chai
+      .request(server)
+      .post('/api/threads/test')
+      .send({
+        created_on: '01-01-2001',
+        reported: false,
+        text: 'test',
+        delete_password: 'test',
+        bumped_on: '01-01-2001',
+        replies: [],
+        replycount: 0
+      })
+      .end((err, res) => {
+        assert.equal(res.status, 200)
+        assert.deepEqual(res.body.acknowledged, true)
+        done()
+      })
+  })
   // test('Viewing the 10 most recent threads with 3 replies each: GET request to /api/threads/{board}', (done) => {
   //   done()
   // })
