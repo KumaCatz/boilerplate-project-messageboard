@@ -6,7 +6,6 @@ const { client } = require('../db-connection.js');
 
 const database = client.db('anonymousMessageBoard');
 const threads = database.collection('threads');
-const replies = database.collection('replies');
 
 const getBaseData = (text, delete_password) => {
   const date = new Date();
@@ -23,20 +22,18 @@ module.exports = function (app) {
   app
     .route('/api/threads/:board')
 
-    // You can send a POST request to /api/threads/{board}
     .post(async (req, res) => {
-      // with form data including text and delete_password.
       const { text, delete_password } = req.body;
 
       const baseData = getBaseData(text, delete_password);
 
-      // The saved database record will have at least the fields _id, text, created_on(date & time), bumped_on(date & time, starts same as created_on), reported (boolean), delete_password, & replies (array).
       const newThread = {
         ...baseData,
         bumped_on: baseData.created_on,
         replies: [],
         replycount: 0
       };
+
       try {
         const postThread = await threads.insertOne(newThread);
         delete postThread.insertedId
@@ -44,37 +41,34 @@ module.exports = function (app) {
       } catch (err) {
         res.send(err)
       }
-
-      // res.send('test: /api/threads/:board GET');
     })
 
-    // 7. You can send a GET request to /api/threads/{board}.
     .get(async (req, res) => {
-      // Returned will be an array of the most recent 10 bumped threads on the board
-      const recentThreads = await threads
+      try {
+        const recentThreads = await threads
+          .find()
+          .sort({ bumped_on: -1 })
+          .limit(10)
+          .toArray();
 
-        .find()
-        .sort({ bumped_on: -1 })
-        .limit(10)
-        .toArray();
+        const updatedThreads = recentThreads.map((thread) => {
+          thread.replies.sort((a, b) => b.created_on - a.created_on);
+          thread.replies = thread.replies.slice(0, 3);
 
-      //with only the most recent 3 replies for each
-      const updatedThreads = recentThreads.map((thread) => {
-        thread.replies.sort((a, b) => b.created_on - a.created_on);
-        thread.replies = thread.replies.slice(0, 3);
-        thread.replies.forEach((reply) => {
-          delete reply.delete_password;
-          delete reply.reported;
+          thread.replies.forEach((reply) => {
+            delete reply.delete_password;
+            delete reply.reported;
+          });
+
+          delete thread.delete_password;
+          delete thread.reported;
+          return thread;
         });
-        delete thread.delete_password;
-        delete thread.reported;
-        return thread;
-      });
 
-      // The reported and delete_password fields will not be sent to the client.
-      res.send(updatedThreads);
-
-      // res.send('test: /api/threads/:board GET');
+        res.send(updatedThreads);
+      } catch (err) {
+        res.send(err)
+      }
     })
 
     // 11. You can send a PUT request to /api/threads/{board} and pass along the thread_id. Returned will be the string reported. The reported value of the thread_id will be changed to true.

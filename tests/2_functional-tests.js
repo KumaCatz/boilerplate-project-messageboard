@@ -5,7 +5,7 @@ const server = require('../server');
 
 chai.use(chaiHttp);
 
-suite('Functional Tests', function() {
+suite('Functional Tests', function () {
   test('Creating a new thread: POST request to /api/threads/{board}', (done) => {
     chai
       .request(server)
@@ -17,17 +17,24 @@ suite('Functional Tests', function() {
         delete_password: 'test',
         bumped_on: '01-01-2001',
         replies: [],
-        replycount: 0
+        replycount: 0,
       })
       .end((err, res) => {
+        assert.equal(res.status, 200);
+        assert.deepEqual(res.body.acknowledged, true);
+        done();
+      });
+  });
+  test('Viewing the 10 most recent threads with 3 replies each: GET request to /api/threads/{board}', (done) => {
+    chai
+      .request()
+      .get('/api/threads/test')
+      .end((err, res) => {
         assert.equal(res.status, 200)
-        assert.deepEqual(res.body.acknowledged, true)
+        
         done()
       })
-  })
-  // test('Viewing the 10 most recent threads with 3 replies each: GET request to /api/threads/{board}', (done) => {
-  //   done()
-  // })
+  });
   // test('Deleting a thread with the incorrect password: DELETE request to /api/threads/{board} with an invalid delete_password', (done) => {
   //   done()
   // })
