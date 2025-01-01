@@ -118,12 +118,31 @@ suite('Functional Tests', function () {
   //       })
   //     })
   // })
-  test('Viewing a single thread with all replies: GET request to /api/replies/{board}', (done) => {
+  // test('Viewing a single thread with all replies: GET request to /api/replies/{board}', (done) => {
+  //   chai
+  //     .request(server)
+  //     .get('/api/threads/:board')
+  //     .end((err, res) => {
+  //       const sample = res.body[0];
+  //       chai
+  //         .request(server)
+  //         .get(`/api/replies/${sample.text}`)
+  //         .end((err, res) => {
+  //           assert.equal(res.status, 200)
+  //           if (res.body.replies.length > 0) {
+  //             res.body.replies.forEach((reply) => {
+  //               assert.typeOf(reply.created_on, 'string')
+  //               assert.typeOf(reply.reported, 'boolean')
+  //               assert.typeOf(reply.text, 'string')
+  //             })
+  //           }
+  //           done()
+  //         })
+  //       })
+  // })
+  test('Deleting a reply with the incorrect password: DELETE request to /api/replies/{board} with an invalid delete_password', (done) => {
     done()
   })
-  // test('Deleting a reply with the incorrect password: DELETE request to /api/replies/{board} with an invalid delete_password', (done) => {
-  //   done()
-  // })
   // test('Deleting a reply with the correct password: DELETE request to /api/replies/{board} with a valid delete_password', (done) => {
   //   done()
   // })

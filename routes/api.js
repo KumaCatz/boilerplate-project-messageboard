@@ -126,23 +126,31 @@ module.exports = function (app) {
     })
 
     .get(async (req, res) => {
-      const { board } = req.params;
+      const { board } = req.params
       const { thread_id } = req.query;
 
-      // Returned will be the entire thread with all its replies, also excluding the same fields from the client as the previous test.
-      // delete_password and reported key-values
-      const thread = await threads.findOne({ _id: new ObjectId(thread_id) })
-      const updatedReplies = thread.replies.map((reply) => {
-        delete reply.delete_password;
-        delete reply.reported;
-        return reply;
-      });
+      try {
+        let thread
 
-      thread.replies = updatedReplies
-      delete thread.delete_password;
-      delete thread.reported
-      res.send(thread)
-      // res.send('test: /api/replies/:board GET');
+        if (thread_id) {
+          thread = await threads.findOne({ _id: new ObjectId(thread_id) })
+        } else {
+          thread = await threads.findOne({ text: board })
+        }
+
+        const updatedReplies = thread.replies.map((reply) => {
+          delete reply.delete_password;
+          delete reply.reported;
+          return reply;
+        });
+  
+        thread.replies = updatedReplies
+        delete thread.delete_password;
+        delete thread.reported
+        res.send(thread)  
+      } catch (err) {
+        res.send(err)
+      }
     })
 
     // 12. You can send a PUT request to /api/replies/{board} and pass along the thread_id & reply_id. Returned will be the string reported. The reported value of the reply_id will be changed to true.
@@ -164,27 +172,27 @@ module.exports = function (app) {
       // res.send('test: /api/replies/:board PUT');
     })
 
-    // 10. You can send a DELETE request to /api/replies/{board} and pass along the thread_id, reply_id, & delete_password. Returned will be the string incorrect password or success. On success, the text of the reply_id will be changed to [deleted].
     .delete(async (req, res) => {
-      console.log(req.body)
-      const {board, thread_id, reply_id, delete_password} = req.body
+      const {thread_id, reply_id, delete_password} = req.body
 
-      const thread = await threads.findOne({ _id: new ObjectId(thread_id) })
-      const reply = await thread.replies.find((reply) => new ObjectId(reply._id) == reply_id)
-
-      if (reply.delete_password == delete_password) {
-        const updateReply = await threads.updateOne(
-          { _id: new ObjectId(thread_id), 'replies._id': new ObjectId(reply_id)},
-          {
-            $set: { 'replies.$.text': '[deleted]' },
-          }
-        );
-
-        res.send('success')
-      } else {
-        res.send('incorrect password')
+      try {
+        const thread = await threads.findOne({ _id: new ObjectId(thread_id) })
+        const reply = await thread.replies.find((reply) => new ObjectId(reply._id) == reply_id)
+  
+        if (reply.delete_password == delete_password) {
+          const updateReply = await threads.updateOne(
+            { _id: new ObjectId(thread_id), 'replies._id': new ObjectId(reply_id)},
+            {
+              $set: { 'replies.$.text': '[deleted]' },
+            }
+          );
+  
+          res.send('success')
+        } else {
+          res.send('incorrect password')
+        }  
+      } catch (err) {
+        res.send(err)
       }
-
-      // res.send('test: /api/replies/:board DELETE');
     });
 };
