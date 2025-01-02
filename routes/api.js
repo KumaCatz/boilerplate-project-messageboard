@@ -153,12 +153,8 @@ module.exports = function (app) {
       }
     })
 
-    // 12. You can send a PUT request to /api/replies/{board} and pass along the thread_id & reply_id. Returned will be the string reported. The reported value of the reply_id will be changed to true.
     .put(async (req, res) => {
-      const {board, thread_id, reply_id} = req.body
-
-      // const thread = await threads.findOne({ _id: new ObjectId(thread_id) })
-      // const reply = thread.replies.find((reply) => new ObjectId(reply._id) == reply_id)
+      const {thread_id, reply_id} = req.body
 
       const updateReply = await threads.updateOne(
         { _id: new ObjectId(thread_id), 'replies._id': new ObjectId(reply_id)},
@@ -167,9 +163,7 @@ module.exports = function (app) {
         }
       );
 
-
       res.send('reported')
-      // res.send('test: /api/replies/:board PUT');
     })
 
     .delete(async (req, res) => {
