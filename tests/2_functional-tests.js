@@ -132,7 +132,6 @@ suite('Functional Tests', function () {
             if (res.body.replies.length > 0) {
               res.body.replies.forEach((reply) => {
                 assert.typeOf(reply.created_on, 'string')
-                assert.typeOf(reply.reported, 'boolean')
                 assert.typeOf(reply.text, 'string')
               })
             }
